@@ -2,81 +2,47 @@
 
 namespace App\Livewire\Admin\Options;
 
+use App\Livewire\Forms\Admin\Options\NewOption;
+use App\Models\Feature;
 use App\Models\Option;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class ManageOptions extends Component
 {
     public $options;
-    public $openModal = false;
-
-    public $newOption = [
-        'name' => '',
-        'type' => '2',
-        'features' => [
-            [
-                'value' => '',
-                'description' => '',
-            ]
-        ]
-    ];
+    public NewOption $newOption;
 
     public function mount()
+    {
+        $this->options = Option::with('features')->get();
+    }
+    #[On('featureAdded')]
+    public function updateOptionList()
     {
         $this->options = Option::with('features')->get();
     }
 
     public function addFeature()
     {
-        $this->newOption['features'][] = [
-            'value' => '',
-            'description' => '',
-        ];
+        $this->newOption->addFeature();
     }
 
     public function removeFeature($index)
     {
-        unset($this->newOption['features'][$index]);
-        //Restableciendo los indices que se borran
-        $this->newOption['features'] = array_values($this->newOption['features']);
+        $this->newOption->removeFeature($index);
+    }
+
+    public function deleteFeature(Feature $feature){
+//        dd($feature->toArray());
+        $feature->delete();
+        $this->options = Option::with('features')->get();
     }
 
     public function addOption()
     {
-        $rules = [
-            'newOption.name' => 'required',
-            'newOption.type' => 'required|in:1,2',
-            'newOption.features' => 'required|array|min:1',
-        ];
-
-        foreach ($this->newOption['features'] as $index => $feature) {
-            //$rules['newOption.features.'.$index.'value'] = 'required';
-            if ($this->newOption['type'] == 1) {
-                $rules['newOption.features.' . $index . '.value'] = 'required';
-            } else {
-            //Color validación
-                $rules['newOption.features.' . $index . '.value'] = 'required|regex:/^#[a-f0-9]{6}$/i';
-            }
-
-            $rules['newOption.features.' . $index . '.description'] = 'required';
-        }
-
-        $this->validate($rules);
-
-        $option = Option::create([
-            'name' => $this->newOption['name'],
-            'type' => $this->newOption['type'],
-        ]);
-        foreach ($this->newOption['features'] as $feature) {
-            $option->features()->create([
-                'value' => $feature['value'],
-                'description' => $feature['description'],
-            ]);
-        }
+        $this->newOption->save();
         $this->options = Option::with('features')->get();
-
-        $this->reset(['newOption', 'openModal']);
-
         $this->dispatch('swal',[
             'icon'=>'success',
             'title'=>'Bien hecho!',
@@ -84,7 +50,6 @@ class ManageOptions extends Component
         ]);
 
     }
-
 
     public function render()
     {
