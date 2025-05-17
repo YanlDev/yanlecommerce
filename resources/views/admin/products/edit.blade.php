@@ -14,6 +14,10 @@
     {{--BOTON DE ACCION POR SI SE VA CREAR ALGO NUEVO EN ESA RUTA--}}
     {{--                :actionLink="route('admin.products.create')"--}}
 >
-    @livewire('admin.products.edit-product', ['product' => $product] )
+    <div class="mb-4">
+        @livewire('admin.products.edit-product', ['product' => $product], key('edit-product'.$product->id) )
+    </div>
+
+    @livewire('admin.products.variant-product',['product' => $product], key('variant-product'.$product->id))
 
 </x-admin-layout>

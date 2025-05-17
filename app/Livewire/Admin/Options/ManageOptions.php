@@ -51,6 +51,11 @@ class ManageOptions extends Component
 
     }
 
+    public function deleteOption(Option $option){
+        $option->delete();
+        $this->options = Option::with('features')->get();
+    }
+
     public function render()
     {
         return view('livewire.admin.options.manage-options');

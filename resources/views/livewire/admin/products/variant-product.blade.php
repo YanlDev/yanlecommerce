@@ -1,0 +1,84 @@
+<div xmlns="http://www.w3.org/1999/html">
+    <section class="rounded-lg bg-white shadow-lg">
+        <header class="border-b px-6 py-2">
+            <div class="flex justify-between items-center">
+                <h2 class="font-bold text-lg ">Opciones</h2>
+                <button class="btn-blue" wire:click="$set('openModal','true')">
+                    Nuevo
+                </button>
+            </div>
+            <div class="p-6">
+            </div>
+        </header>
+    </section>
+    <x-dialog-modal wire:model="openModal">
+        <x-slot name="title">Agregar una nueva opción</x-slot>
+        <x-slot name="content">
+            <x-validation-errors></x-validation-errors>
+            <div class="mb-4">
+                <x-label class="mb-1">
+                    Opción
+                </x-label>
+                <x-select class="w-full" wire:model.live="variant.option_id">
+                    <option value="">Seleccione una opción</option>
+                    @foreach($options as $option)
+                        <option value="{{$option->id}}">
+                            {{$option->name}}
+                        </option>
+                    @endforeach
+                </x-select>
+            </div>
+            <div class="flex items-center mb-4">
+                <hr class="flex-1">
+                <span class="px-2">Valores</span>
+                <hr class="flex-1">
+            </div>
+            <div>
+                <ul class="mb-4 space-y-4">
+                    @foreach($variant['features'] as $index => $feature)
+                        <li wire:key="variant-feature-{{$index}}"
+                            class=" border border-gray-200 rounded-lg p-6 relative">
+                            <div class="absolute -top-3 left-4 bg-white px-2">
+                                <button wire:click="deleteFeature({{$index}})"><i
+                                        class="fa-solid fa-trash-can text-red-500 hover:text-red-700"></i></button>
+                            </div>
+                            <div>
+                                <x-label class="mb-1">
+                                    Valores
+                                </x-label>
+                                {{-- Tener en cuenta con quien enlazamos el valor --}}
+                                <x-select class="w-full"
+                                          wire:model="variant.features.{{$index}}.id"
+                                          {{-- Esta escuchando cambios de los option --}}
+                                          wire:change="featureChange({{$index}})">
+                                    <option value="" >Seleccione un valor</option>
+                                    @foreach($this->features as $item)
+                                        <option value="{{$item->id}}">
+                                            {{$item->description}}
+                                        </option>
+                                    @endforeach
+                                </x-select>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+                <div class="flex justify-end">
+                    <button class="btn-blue" wire:click="addFeature">
+                        Agregar valor
+                    </button>
+                </div>
+
+            </div>
+        </x-slot>
+        <x-slot name="footer">
+            <div class="flex justify-end">
+                <button class="btn-red" wire:click="$set('openModal',false)">
+                    Cancelar
+                </button>
+                <button class="btn-green" wire:click="save">
+                    Guardar
+                </button>
+            </div>
+        </x-slot>
+    </x-dialog-modal>
+</div>

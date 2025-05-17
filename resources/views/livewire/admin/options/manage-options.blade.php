@@ -13,6 +13,9 @@
                 @foreach($options as $option)
                     <div wire:key="option-{{$option->id}}" class="p-6 rounded-lg border border-gray-200 relative">
                         <div class="absolute bg-white -top-3 left-4">
+                            <button class="mr-1"  onclick="confirmDelete({{$option->id}},'option')" >
+                                <i class="fa-solid fa-trash-can text-red-500 hover:text-red-700"></i>
+                            </button>
                             <span class="px-2">{{$option->name}}</span>
                         </div>
                         {{-- Valores --}}
@@ -24,7 +27,7 @@
                                         <span
                                             class="bg-gray-100 text-gray-800 text-sm font-medium me-2 pl-2.5 pr-1.5 p-0.5 rounded-md  border border-gray-500">{{$feature->description}}
                                                 <button class="ml-0.5"
-                                                        onclick="confirmDelete({{$feature->id}})"
+                                                        onclick="confirmDelete({{$feature->id}},'feature')"
                                                         {{-- wire:click="deleteFeature({{$feature->id}})" --}}
                                                 >
                                                     <i class="fa-solid fa-xmark hover:text-red-500"></i>
@@ -39,7 +42,7 @@
                                                   class="inline-block h-6 w-6 border border-gray-300 shadow-md rounded-full mr-4">
                                             </span>
                                             <button
-                                                onclick="confirmDelete({{$feature->id}})"
+                                                onclick="confirmDelete({{$feature->id}},'feature')"
                                                 class="absolute z-10 -top-2 left-5 rounded-full bg-red-500 hover:bg-red-700 w-4 flex justify-center items-center">
                                                 <i class="fa-solid fa-xmark text-xs text-white"></i>
                                             </button>
@@ -48,8 +51,7 @@
                                 @endswitch
                             @endforeach
                         </div>
-                        @livewire('admin.options.add-new-feature',['option'=> $option],
-                        key('add-new-feature-'.$option->id))
+                        @livewire('admin.options.add-new-feature',['option'=> $option], key('add-new-feature-'.$option->id))
                     </div>
                 @endforeach
             </div>
@@ -129,7 +131,7 @@
     </x-dialog-modal>
     @push('warning-alert')
         <script>
-            function confirmDelete(featureId) {
+            function confirmDelete(id, type) {
                 Swal.fire({
                     title: "¿Estás seguro?",
                     text: "¡No podrás revertir esto!",
@@ -142,7 +144,14 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         // console.log(featureId)
-                    @this.call('deleteFeature', featureId);
+                        switch (type) {
+                            case 'feature':
+                            @this.call('deleteFeature', id)
+                                break;
+                            case 'option':
+                            @this.call('deleteOption', id)
+                        }
+
                     }
                 });
             }

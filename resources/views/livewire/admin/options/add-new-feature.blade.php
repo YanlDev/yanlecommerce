@@ -25,5 +25,6 @@
                 Agregar
             </button>
         </div>
+        <x-validation-errors></x-validation-errors>
     </form>
 </div>

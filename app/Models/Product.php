@@ -16,6 +16,7 @@ class Product extends Model
         'price',
         'subcategory_id',
     ];
+
     public function subcategory()
     {
         return $this->belongsTo(Subcategory::class);
@@ -27,7 +28,8 @@ class Product extends Model
 
     public function options(){
         return $this->belongsToMany(Option::class)
-            ->withPivot('value')
+            ->using(OptionProduct::class)
+            ->withPivot('features')
             ->withTimestamps();
     }
 

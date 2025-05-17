@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('option_id');
             $table->foreignId('product_id');
-            $table->string('value');
+            $table->json('features');
             $table->timestamps();
         });
     }
