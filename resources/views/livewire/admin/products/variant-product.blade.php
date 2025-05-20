@@ -8,6 +8,52 @@
                 </button>
             </div>
             <div class="p-6">
+                <div class="space-y-6">
+                    @foreach($product->options as $option)
+                        <div wire:key="product-option{{$option->id}}"
+                             class="p-6 rounded-lg border border-gray-200 relative">
+                            <div class="absolute -top-3 left-4 bg-white px-2">
+                                <button>
+                                    <i class="fa-solid fa-trash-can text-red-500 hover:text-red-700"></i>
+                                </button>
+                                <span class="ml-1">{{$option->name}}</span>
+                            </div>
+                            <div class="flex flex-wrap">
+                                @foreach($option->pivot->features as $feature)
+                                    @switch($option->type)
+                                        @case(1)
+                                            {{-- Caso 1 es tipo texto --}}
+                                            <span
+                                                class="bg-gray-100 text-gray-800 text-sm font-medium me-2 pl-2.5 pr-1.5 p-0.5 rounded-md  border border-gray-500">{{$feature['description']}}
+                                                <button class="ml-0.5"
+                                                        onclick="confirmDeleteFeature({{$option->id}},{{$feature['id']}})"
+
+                                                        {{-- wire:click="deleteFeature({{$feature->id}})" --}}
+                                                >
+                                                    <i class="fa-solid fa-xmark hover:text-red-500"></i>
+                                                </button>
+                                        </span>
+
+                                            @break
+                                        @case(2)
+                                            {{-- Caso 2 es tipo color --}}
+                                            <div class="relative">
+                                            <span style="background-color:{{ $feature['value'] }}"
+                                                  class="inline-block h-6 w-6 border border-gray-300 shadow-md rounded-full mr-4">
+                                            </span>
+                                                <button
+                                                    onclick="confirmDeleteFeature({{$option->id}},{{$feature['id']}})"
+                                                    class="absolute z-10 -top-2 left-5 rounded-full bg-red-500 hover:bg-red-700 w-4 flex justify-center items-center">
+                                                    <i class="fa-solid fa-xmark text-xs text-white"></i>
+                                                </button>
+                                            </div>
+                                            @break
+                                    @endswitch
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
             </div>
         </header>
     </section>
@@ -51,7 +97,7 @@
                                           wire:model="variant.features.{{$index}}.id"
                                           {{-- Esta escuchando cambios de los option --}}
                                           wire:change="featureChange({{$index}})">
-                                    <option value="" >Seleccione un valor</option>
+                                    <option value="">Seleccione un valor</option>
                                     @foreach($this->features as $item)
                                         <option value="{{$item->id}}">
                                             {{$item->description}}
@@ -81,4 +127,26 @@
             </div>
         </x-slot>
     </x-dialog-modal>
+    @push('warning-alert')
+        <script>
+            function confirmDeleteFeature(option_id, feature_id) {
+                Swal.fire({
+                    title: "¿Estás seguro?",
+                    text: "¡No podrás revertir esto!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "¡Sí, bórralo!",
+                    cancelButtonText: "Cancelar"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // console.log(featureId)
+                        @this.call('removeFeature', option_id, feature_id)
+                    }
+                });
+            }
+
+        </script>
+    @endpush
 </div>

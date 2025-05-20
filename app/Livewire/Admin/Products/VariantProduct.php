@@ -20,7 +20,7 @@ class VariantProduct extends Component
             ]
         ]
     ];
-    public $openModal = true;
+    public $openModal = false;
     public $options;
 
 
@@ -68,7 +68,7 @@ class VariantProduct extends Component
     public function featureChange($index)
     {
         $feature = Feature::find($this->variant['features'][$index]['id']);
-        if ($feature){
+        if ($feature) {
             $this->variant['features'][$index]['value'] = $feature->value;
             $this->variant['features'][$index]['description'] = $feature->description;
         }
@@ -86,6 +86,14 @@ class VariantProduct extends Component
         $this->reset(['variant', 'openModal']);
 
     }
+
+    public function removeFeature($option_id, $feature_id)
+    {
+        $this->product->options()->updateExistingPivot($option_id, ['features' => array_filter($this->product->options()->find($option_id)->pivot->features, function ($feature) use ($feature_id) {
+            return $feature['id'] != $feature_id;
+        })]);
+    }
+
 
     public function render()
     {
