@@ -74,6 +74,29 @@ class VariantProduct extends Component
         }
     }
 
+    public function deleteOption($option_id){
+        $this->product->options()->detach($option_id);
+        $this->product = $this->product->fresh();
+    }
+
+    public function removeFeature($option_id, $feature_id) {
+        // Obtener el registro de la relación pivot
+        $pivotRelation = $this->product->options();
+        $pivotRecord = $pivotRelation->find($option_id)->pivot;
+
+        // Asegurarte de que features es un array
+        $features = $pivotRecord->features;
+
+        // Filtrar el array y reiniciar los índices
+        $filteredFeatures = array_values(array_filter($features, function($feature) use ($feature_id) {
+            return $feature['id'] != $feature_id;
+        }));
+
+        // Actualizar el pivot con el nuevo array
+        $pivotRelation->updateExistingPivot($option_id, [
+            'features' => $filteredFeatures
+        ]);
+    }
     public function save()
     {
         $this->validate([
@@ -87,12 +110,6 @@ class VariantProduct extends Component
 
     }
 
-    public function removeFeature($option_id, $feature_id)
-    {
-        $this->product->options()->updateExistingPivot($option_id, ['features' => array_filter($this->product->options()->find($option_id)->pivot->features, function ($feature) use ($feature_id) {
-            return $feature['id'] != $feature_id;
-        })]);
-    }
 
 
     public function render()
