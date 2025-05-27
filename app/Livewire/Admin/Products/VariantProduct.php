@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Products;
 
 use App\Models\Feature;
 use App\Models\Option;
+use App\Models\Variant;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -74,12 +75,15 @@ class VariantProduct extends Component
         }
     }
 
-    public function deleteOption($option_id){
+    public function deleteOption($option_id)
+    {
         $this->product->options()->detach($option_id);
         $this->product = $this->product->fresh();
+        $this->generateVariants();
     }
 
-    public function removeFeature($option_id, $feature_id) {
+    public function removeFeature($option_id, $feature_id)
+    {
         // Obtener el registro de la relación pivot
         $pivotRelation = $this->product->options();
         $pivotRecord = $pivotRelation->find($option_id)->pivot;
@@ -88,7 +92,7 @@ class VariantProduct extends Component
         $features = $pivotRecord->features;
 
         // Filtrar el array y reiniciar los índices
-        $filteredFeatures = array_values(array_filter($features, function($feature) use ($feature_id) {
+        $filteredFeatures = array_values(array_filter($features, function ($feature) use ($feature_id) {
             return $feature['id'] != $feature_id;
         }));
 
@@ -96,6 +100,36 @@ class VariantProduct extends Component
         $pivotRelation->updateExistingPivot($option_id, [
             'features' => $filteredFeatures
         ]);
+        $this->generateVariants();
+    }
+
+
+    public function generateVariants()
+    {
+        $features = $this->product->options->pluck('pivot.features');
+        $combinations = $this->generateCombinations($features);
+        $this->product->variants()->delete();
+        foreach ($combinations as $combination) {
+            $variant = Variant::create([
+                'product_id' => $this->product->id,
+            ]);
+            $variant->features()->attach($combination);
+        }
+        $this->dispatch('variant-generate');
+    }
+
+    public function generateCombinations($arrays, $index = 0, $combination = [])
+    {
+        if ($index == count($arrays)) {
+            return [$combination];
+        }
+        $result = [];
+        foreach ($arrays[$index] as $item) {
+            $temporalyCombination = $combination;
+            $temporalyCombination[] = $item['id'];
+            $result = array_merge($result, $this->generateCombinations($arrays, $index + 1, $temporalyCombination));
+        }
+        return $result;
     }
     public function save()
     {
@@ -106,11 +140,12 @@ class VariantProduct extends Component
             'variant.features.*.description' => 'required',
         ]);
         $this->product->options()->attach($this->variant['option_id'], ['features' => $this->variant['features']]);
+
+        $this->generateVariants();
+
         $this->reset(['variant', 'openModal']);
 
     }
-
-
 
     public function render()
     {

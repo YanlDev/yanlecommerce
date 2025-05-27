@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Subcategory;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -25,6 +26,7 @@ class EditProduct extends Component
     public $description;
     public $sku;
     public $price;
+    public $stock;
     public $newImage; // Para una nueva imagen subida
 
     public $selectedFamilyId = null;
@@ -40,6 +42,7 @@ class EditProduct extends Component
         $this->description = $this->product->description;
         $this->sku = $this->product->sku;
         $this->price = $this->product->price;
+        $this->stock = $this->product->stock;
         $this->selectedFamilyId = $product->subcategory->category->family_id;
         $this->families = Family::all();
         $this->selectedCategoryId = $product->subcategory->category_id;
@@ -71,6 +74,12 @@ class EditProduct extends Component
     }
 
 
+    #[On('variant-generate')]
+    public function updateProduc()
+    {
+        $this->product = $this->product->fresh();
+    }
+
     #[Computed]
     public function categories()
     {
@@ -95,6 +104,7 @@ class EditProduct extends Component
             'name' => 'required|string|max:255',
             'sku' => 'required|integer|min:1|unique:products,sku,' . $this->product->id,
             'price' => 'required|numeric|min:0',
+            'stock' => 'required|integer|min:0',
             'description' => 'required|string',
             'selectedFamilyId' => 'required|exists:families,id',
             'selectedCategoryId' => 'required|exists:categories,id',
@@ -104,7 +114,7 @@ class EditProduct extends Component
             $rules['newImage'] = 'image|max:2048';
         }
         $this->validate($rules);
-        $data = $this->only(['name', 'sku', 'price', 'description']);
+        $data = $this->only(['name', 'sku', 'price','stock', 'description']);
 
         // Agregar el ID de subcategoría manualmente (porque no coincide con el nombre de la propiedad)
         $data['subcategory_id'] = $this->selectedSubcategoryId;
@@ -135,6 +145,7 @@ class EditProduct extends Component
             'sku.required' => 'Ingresa un SKU para el producto.',
             'sku.unique' => 'Este SKU ya está en uso.',
             'price.required' => 'Establece un precio para el producto.',
+            'stock.required' => 'Establece un stock para el producto.',
             'description.required' => 'Añade una descripción del producto.',
             'newImage.image' => 'El archivo debe ser una imagen.',
             'selectedFamilyId.required' => 'Selecciona una familia.',

@@ -56,7 +56,7 @@
 
 @livewireScripts
 @stack('warning-alert')
-
+@stack('js')
 @if(session('swal'))
     <script>
         document.addEventListener('DOMContentLoaded', function () {

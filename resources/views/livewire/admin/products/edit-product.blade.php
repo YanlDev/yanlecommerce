@@ -94,6 +94,20 @@
                 placeholder="Ingrese el Precio del producto a crear"
             />
         </div>
+        @empty($product->variants->count()>0)
+        <div class="mb-4">
+            <x-label class="mb-2">
+                Stock
+            </x-label>
+            <x-input
+                wire:model="stock"
+                type="number"
+                min="0"
+                class="w-full"
+                placeholder="Ingrese el Stock del producto a crear"
+            />
+        </div>
+        @endempty
         <div class="mb-4">
             <x-label class="mb-2">
                 Familia

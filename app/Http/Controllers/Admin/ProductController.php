@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Product;
 use App\Http\Controllers\Controller;
+use App\Models\Variant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -77,5 +78,38 @@ class ProductController extends Controller
             'text' => 'El producto se eliminó correctamente.',
         ]);
         return redirect()->route('admin.products.index');
+    }
+
+    public function variants(Product $product, Variant $variant)
+    {
+        return view('admin.products.variants', compact('product', 'variant'));
+    }
+
+    public function variantsUpdate(Request $request, Product $product, Variant $variant)
+    {
+        $data = $request->validate([
+            'image' => 'nullable|image|max:1024',
+            'sku' => 'required',
+            'stock' => 'required|numeric|integer|min:0'
+        ]);
+
+
+        if ($request->image) {
+            if ($variant->image_path){
+                Storage::delete($variant->image_path);
+            }
+            $data['image_path'] = $request->image->store('products');
+        }
+
+        $variant->update($data);
+
+        session()->flash('swal', [
+            'icon' => 'success',
+            'title' => 'Bien hecho!',
+            'text' => 'La variante se actualizó correctamente.',
+        ]);
+
+        return redirect()->route('admin.products.variants', [$product, $variant]);
+
     }
 }

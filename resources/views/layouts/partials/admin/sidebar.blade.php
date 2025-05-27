@@ -35,6 +35,12 @@ $links = [
         'name' => 'Productos',
         'url' => route('admin.products.index'),
         'active' => request()->routeIs('admin.products.*')
+    ],
+    [
+        'icon' => 'fa-solid fa-images',
+        'name' => 'Portadas',
+        'url' => route('admin.covers.index'),
+        'active' => request()->routeIs('admin.covers.*')
     ]
 
 
@@ -42,7 +48,7 @@ $links = [
 
 ?>
 
-    <!-- Sidebar -->
+        <!-- Sidebar -->
 <aside id="logo-sidebar"
        :class="{
         'translate-x-0 ease-out': sidebarOpen,
@@ -55,8 +61,8 @@ $links = [
             @foreach($links as $link)
                 <li>
                     <a
-                        href="{{$link['url']}}"
-                        class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group {{ $link['active'] ? 'bg-gray-200 ' : '' }}"
+                            href="{{$link['url']}}"
+                            class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group {{ $link['active'] ? 'bg-gray-200 ' : '' }}"
                     >
                         <span class="inline-flex w-6 h-6 items-center justify-center text-gray-900">
                         <i class="{{$link['icon']}}"></i>
