@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Cover;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use function _PHPStan_781aefaf6\React\Promise\all;
 
 class CoverController extends Controller
 {
@@ -29,7 +31,25 @@ class CoverController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'image'=>'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'title' => 'required',
+            'start_at' => 'required|date',
+            'end_at' => 'nullable|date|after:start_at',
+            'is_active' => 'required|boolean',
+        ]);
+
+        $data['image_path'] = Storage::put('covers', $data['image']);
+        $cover = Cover::create($data);
+
+        session()->flash('swal',[
+            'icon'=>'success',
+            'title'=>'Bien hecho!',
+            'text'=>'El cover se ha creado correctamente.',
+        ]);
+
+        return redirect()->route('admin.covers.edit', $cover);
+
     }
 
     /**
@@ -53,7 +73,27 @@ class CoverController extends Controller
      */
     public function update(Request $request, Cover $cover)
     {
-        //
+        $data = $request->validate([
+            'image'=>'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'title' => 'required',
+            'start_at' => 'required|date',
+            'end_at' => 'nullable|date|after:start_at',
+            'is_active' => 'required|boolean',
+        ]);
+
+        if(isset($data['image'])){
+            Storage::delete($cover->image_path);
+            $data['image_path'] = Storage::put('covers', $data['image']);
+        }
+        $cover->update($data);
+        session()->flash('swal', [
+            'icon' => 'success',
+            'title' => 'Bien hecho!',
+            'text' => 'El cover se ha actualizado correctamente.',
+        ]);
+        return redirect()->route('admin.covers.edit', $cover);
+
+
     }
 
     /**
