@@ -9,6 +9,7 @@ use App\Models\Subcategory;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Illuminate\Http\Request;
 
 class CreateProduct extends Component
 {
@@ -77,8 +78,16 @@ class CreateProduct extends Component
         return Subcategory::where('category_id', $this->selectedCategoryId)->get();
     }
 
-    public function store()
+    public function store(Request $request)
     {
+//        dd([
+//            'selectedFamilyId' => $this->selectedFamilyId,
+//            'selectedCategoryId' => $this->selectedCategoryId,
+//            'selectedSubcategoryId' => $this->selectedSubcategoryId,
+//            'subcategories_count' => $this->subcategories->count()
+//        ]);
+
+
         $this->validate([
             'name' => 'required|string|max:255',
             'sku' => 'required|integer|min:1|unique:products,sku',
@@ -94,9 +103,9 @@ class CreateProduct extends Component
             'sku' => $this->sku,
             'name' => $this->name,
             'description' => $this->description,
+            'subcategory_id' => $this->selectedSubcategoryId,
             'image_path' => $imagePath,
             'price' => $this->price,
-            'subcategory_id' => $this->selectedSubcategoryId,
         ]);
         session()->flash('swal', [
             'icon' => 'success',
