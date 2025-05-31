@@ -15,7 +15,8 @@ class Filter extends Component
 
     use WithPagination;
 
-    public function mount(){
+    public function mount()
+    {
         $this->options = Option::whereHas('products.subcategory.category', function ($query) {
             $query->where('family_id', $this->family_id);
         })->with([
@@ -33,7 +34,9 @@ class Filter extends Component
         $products = Product::whereHas('subcategory.category', function ($query) {
             $query->where('family_id', $this->family_id);
         })->when($this->selected_features, function ($query) {
-            $query->whereIn('features.id', $this->selected_features);
+            $query->whereHas('variants.features', function ($query) {
+                $query->whereIn('features.id', $this->selected_features);
+            });
         })
             ->paginate(12);
 
