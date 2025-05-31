@@ -17,6 +17,7 @@ class Product extends Model
         'image_path',
         'price',
         'stock',
+        'subcategory_id',
     ];
 
     protected function image(): Attribute
