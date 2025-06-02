@@ -84,12 +84,12 @@
 
                 <!-- Ordenamiento -->
                 <select
+                    wire:model.live="orderBy"
                     class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500">
-                    <option>Ordenar por</option>
-                    <option>Precio: Menor a Mayor</option>
-                    <option>Precio: Mayor a Menor</option>
-                    <option>Más Populares</option>
-                    <option>Más Recientes</option>
+                    {{--<option disabled selected>Ordenar por</option>--}}
+                    <option value="1">Más Recientes</option>
+                    <option value="2">Precio: Mayor a Menor</option>
+                    <option value="3">Precio: Menor a Mayor</option>
                 </select>
             </div>
 
@@ -150,7 +150,7 @@
             <div class="mt-8">
                 {{$products->links()}}
             </div>
-{{--            @dump($selected_features)--}}
+            {{--            @dump($selected_features)--}}
         </div>
     </x-container>
 </div>

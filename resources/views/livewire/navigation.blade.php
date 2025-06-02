@@ -46,6 +46,7 @@
                             <i class="fas fa-search text-gray-400 text-sm"></i>
                         </div>
                         <input
+                            oninput="search(this.value)"
                             type="search"
                             class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 focus:outline-none transition-all placeholder-gray-500 text-gray-900 text-sm"
                             placeholder="Buscar productos..."
@@ -142,6 +143,7 @@
                         <i class="fas fa-search text-gray-400 text-sm"></i>
                     </div>
                     <input
+                        oninput="search(this.value)"
                         type="search"
                         class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 focus:outline-none placeholder-gray-500 text-gray-900 text-sm"
                         placeholder="Buscar productos..."
@@ -239,7 +241,7 @@
                     <ul class="space-y-6">
                         @foreach($this->categories as $category)
                             <li>
-                                <a href=""
+                                <a href="{{route('categories.show',$category)}}"
                                    class="text-gray-900 font-semibold text-base hover:text-gray-700 focus:text-gray-700 focus:outline-none transition-colors flex items-center mb-3">
                                     {{$category->name}}
                                 </a>
@@ -261,3 +263,13 @@
         </div>
     </div>
 </div>
+
+@push('js')
+    <script>
+        function search(value){
+            Livewire.dispatch('search',{
+                search: value
+            })
+        }
+    </script>
+@endpush
