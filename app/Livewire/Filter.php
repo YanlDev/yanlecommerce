@@ -12,6 +12,7 @@ class Filter extends Component
 {
     public $family_id;
     public $category_id;
+    public $subcategory_id;
     public $options;
 
 
@@ -30,28 +31,9 @@ class Filter extends Component
     public function mount()
     {
 
-        $this->options = Option::when($this->family_id, function ($query) {
-            $query->whereHas('products.subcategory.category', function ($query) {
-                $query->where('family_id', $this->family_id);
-            })->with([
-                'features' => function ($query) {
-                    $query->whereHas('variants.product.subcategory.category', function ($query) {
-                        $query->where('family_id', $this->family_id);
-                    });
-                }
-            ]);
-        })
-            ->when($this->category_id, function ($query) {
-                $query->whereHas('products.subcategory', function ($query) {
-                    $query->where('category_id', $this->category_id);
-                })->with([
-                    'features' => function ($query) {
-                    $query->whereHas('variants.product.subcategory', function ($query) {
-                        $query->where('category_id', $this->category_id);
-                    });
-                    }
-                ]);
-            })
+        $this->options = Option::verifyFamily($this->family_id)
+            ->verifyCategory($this->category_id)
+            ->verifySubcategory($this->subcategory_id)
             ->get()->toArray();;
 
     }
@@ -69,15 +51,10 @@ class Filter extends Component
                     $query->where('category_id', $this->category_id);
                 });
             })
-            ->when($this->orderBy == 1, function ($query) {
-                $query->orderBy('created_at', 'desc');
+            ->when($this->subcategory_id, function ($query) {
+                    $query->where('subcategory_id', $this->subcategory_id);
             })
-            ->when($this->orderBy == 2, function ($query) {
-                $query->orderBy('price', 'desc');
-            })
-            ->when($this->orderBy == 3, function ($query) {
-                $query->orderBy('price', 'asc');
-            })
+            ->customOrder($this->orderBy)
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%');
             })

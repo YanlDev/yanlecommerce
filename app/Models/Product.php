@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 class Product extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'sku',
         'name',
@@ -19,6 +20,18 @@ class Product extends Model
         'stock',
         'subcategory_id',
     ];
+
+    public function scopeCustomOrder($query, $orderBy)
+    {
+        $query->when($orderBy == 1, function ($query) {
+            $query->orderBy('created_at', 'desc');
+        })->when($orderBy == 2, function ($query) {
+                $query->orderBy('price', 'desc');
+        })->when($orderBy == 3, function ($query) {
+                $query->orderBy('price', 'asc');
+        });
+    }
+
 
     protected function image(): Attribute
     {
@@ -37,11 +50,13 @@ class Product extends Model
         return $this->belongsTo(Subcategory::class);
     }
 
-    public function variants(){
+    public function variants()
+    {
         return $this->hasMany(Variant::class);
     }
 
-    public function options(){
+    public function options()
+    {
         return $this->belongsToMany(Option::class)
             ->using(OptionProduct::class)
             ->withPivot('features')
